@@ -1,0 +1,415 @@
+{
+  "version": "2.0",
+  "last_optimized": "",
+  "niches": {
+    "motivational": {
+      "hooks": [
+        {
+          "text": "unreal aura",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "let him cook",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "no cap fr",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "built different",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "main character",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "lowkey inspiring fr",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "real ones know",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "this hits different",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "silent grind era",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "accountability check",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        }
+      ]
+    },
+    "satisfying": {
+      "hooks": [
+        {
+          "text": "cured my anxiety",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "lowkey healing",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "so satisfying fr",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "brain reset",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "oddly okay",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "serotonin unlocked",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "this is so clean fr",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "my ocd is happy",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "therapy but free",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "watch time guaranteed",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        }
+      ]
+    },
+    "animals": {
+      "hooks": [
+        {
+          "text": "the audacity",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "feral behavior",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "unhinged fr",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "not the vibe",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "chaotic good",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "infinite rizz",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "delulu but iconic",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "no thoughts head empty",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "he understood nothing",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "animal arc unlocked",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        }
+      ]
+    },
+    "facts": {
+      "hooks": [
+        {
+          "text": "bro what",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "actually wild",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "lowkey cursed",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "they hid this fr",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "fr tho",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "school never told us",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "i am not okay",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "rent free in my brain",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "brainrot unlocked",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "this changes everything",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        }
+      ]
+    },
+    "hacks": {
+      "hooks": [
+        {
+          "text": "why didnt i know",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "game changer fr",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "actually goated",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "life unlocked",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "save this immediately",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "npc behaviour fixed",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "cheat code activated",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "they gatekept this",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "actually useful fr",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "efficiency arc begins",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        }
+      ]
+    },
+    "default": {
+      "hooks": [
+        {
+          "text": "wait for it",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "no cap",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "lowkey unreal",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "fr fr",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        },
+        {
+          "text": "actually insane",
+          "weight": 1.0,
+          "uses": 0,
+          "avg_retention": 0.0,
+          "flag": ""
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "paths": {
+    "ffmpeg": "C:\\ffmpeg\\bin\\ffmpeg.exe",
+    "ffprobe": "C:\\ffmpeg\\bin\\ffprobe.exe",
+    "downloads": "./downloads",
+    "processed": "./processed",
+    "music": "./music",
+    "logs": "./logs",
+    "captions_temp": "./temp/captions",
+    "jobs_db": "./jobs.json"
+  },
+  "video": {
+    "output_width": 1080,
+    "output_height": 1920,
+    "target_fps": 30,
+    "output_format": "mp4",
+    "crf": 18,
+    "preset": "fast"
+  },
+  "audio": {
+    "music_volume": 0.15,
+    "voice_volume": 1.0,
+    "normalize": true
+  },
+  "captions": {
+    "enabled": true,
+    "whisper_model": "base",
+    "font": "Arial",
+    "font_size": 52,
+    "font_color": "white",
+    "stroke_color": "black",
+    "stroke_width": 3,
+    "position_y_ratio": 0.75,
+    "max_words_per_line": 4,
+    "highlight_color": "#FFD700",
+    "style": "word_by_word"
+  },
+  "download": {
+    "max_duration_seconds": 180,
+    "min_duration_seconds": 10,
+    "preferred_quality": "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+    "concurrent_downloads": 2,
+    "rate_limit": "5M"
+  },
+  "sources": {
+    "youtube_trending": "https://www.youtube.com/feed/trending",
+    "custom_channels": [],
+    "custom_playlists": []
+  },
+  "instagram": {
+    "access_token": "YOUR_LONG_LIVED_ACCESS_TOKEN_HERE",
+    "account_id": "17841422466056084",
+    "api_version": "v19.0",
+    "poll_interval_seconds": 8,
+    "max_poll_retries": 20
+  }
+}

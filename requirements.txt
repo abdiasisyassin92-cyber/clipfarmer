@@ -1,0 +1,23 @@
+# ClipFarmer — Python dependencies
+# Install with: pip install -r requirements.txt
+
+# Core pipeline
+requests>=2.31.0
+yt-dlp>=2024.1.0
+openai-whisper>=20231117
+
+# YouTube API
+google-auth-oauthlib>=1.2.0
+google-api-python-client>=2.120.0
+
+# AI crew
+crewai>=0.80.0
+crewai-tools>=0.4.0
+litellm>=1.30.0
+
+# Dashboard GUI (optional - only for dashboard.py desktop app)
+customtkinter>=5.2.0
+keyboard>=0.13.5
+
+# Utilities
+python-dotenv>=1.0.0

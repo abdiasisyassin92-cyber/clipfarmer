@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClipFarmer — Creator Command Center</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg:       #080c14;
+    --bg2:      #0d1422;
+    --panel:    #0f1a2e;
+    --border:   #1a3a5c;
+    --accent:   #00d4ff;
+    --accent2:  #0055aa;
+    --green:    #00ff9d;
+    --yellow:   #ffd000;
+    --orange:   #ff6b35;
+    --red:      #ff3b5c;
+    --purple:   #a855f7;
+    --text:     #c8e0f8;
+    --muted:    #3a6080;
+    --mono:     'Share Tech Mono', monospace;
+    --ui:       'Rajdhani', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--ui);
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* scanlines */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px,
+      rgba(0,212,255,0.012) 2px, rgba(0,212,255,0.012) 4px);
+    pointer-events: none; z-index: 9999;
+  }
+
+  /* ── HEADER ──────────────────────────────────── */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(90deg, #050a14, var(--bg));
+    position: sticky; top: 0; z-index: 200;
+  }
+
+  .logo-block { display: flex; align-items: center; gap: 14px; }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 900; color: #fff;
+    clip-path: polygon(0 0, 90% 0, 100% 10%, 100% 100%, 10% 100%, 0 90%);
+    letter-spacing: -1px;
+  }
+
+  .logo-text { line-height: 1; }
+  .logo-title {
+    font-family: var(--ui); font-size: 20px; font-weight: 700;
+    color: var(--accent); letter-spacing: 3px;
+    text-shadow: 0 0 20px rgba(0,212,255,0.5);
+  }
+  .logo-sub {
+    font-family: var(--mono); font-size: 9px; color: var(--muted);
+    letter-spacing: 4px; margin-top: 2px;
+  }
+
+  .header-center {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .sys-badge {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+    padding: 4px 12px; border: 1px solid;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .sys-badge.active { color: var(--green); border-color: rgba(0,255,157,0.3); background: rgba(0,255,157,0.05); }
+  .sys-badge.sandbox { color: var(--yellow); border-color: rgba(255,208,0,0.3); background: rgba(255,208,0,0.05); }
+  .sys-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 2s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .clock { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 2px; }
+  .delete-btn {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+    padding: 5px 14px; border: 1px solid rgba(255,59,92,0.4);
+    color: var(--red); background: rgba(255,59,92,0.06); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .delete-btn:hover { background: rgba(255,59,92,0.15); }
+
+  /* ── MAIN GRID ────────────────────────────────── */
+  .main-wrap { display: flex; height: calc(100vh - 57px); overflow: hidden; }
+
+  /* ── LEFT SIDEBAR ────────────────────────────── */
+  .sidebar {
+    width: 260px; min-width: 260px;
+    background: var(--bg2); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
+  }
+
+  .sidebar::-webkit-scrollbar { width: 3px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .s-section { padding: 18px 16px; border-bottom: 1px solid rgba(26,58,92,0.5); }
+
+  .s-title {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 3px;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .s-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Platform status */
+  .platform-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px; margin-bottom: 8px;
+    background: var(--panel); border: 1px solid var(--border);
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .platform-item:hover { border-color: var(--accent); }
+  .platform-item:last-child { margin-bottom: 0; }
+
+  .platform-left { display: flex; align-items: center; gap: 10px; }
+  .platform-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .platform-dot.green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .platform-dot.yellow { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); animation: pulse 2s infinite; }
+
+  .platform-name { font-weight: 600; font-size: 14px; color: var(--text); }
+  .platform-api { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 1px; }
+
+  .platform-tag {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+    padding: 2px 8px; border: 1px solid;
+  }
+  .platform-tag.connected { color: var(--green); border-color: rgba(0,255,157,0.3); }
+  .platform-tag.pending { color: var(--yellow); border-color: rgba(255,208,0,0.3); }
+
+  .platform-action {
+    width: 100%; margin-top: 6px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+    padding: 7px; border: 1px solid var(--border);
+    color: var(--accent); background: transparent; cursor: pointer;
+    text-transform: uppercase; transition: all 0.2s;
+  }
+  .platform-action:hover { border-color: var(--accent); background: rgba(0,212,255,0.06); }
+  .platform-action.orange { color: var(--orange); border-color: rgba(255,107,53,0.4); }
+  .platform-action.orange:hover { background: rgba(255,107,53,0.08); }
+
+  /* Pipeline controls */
+  .ctrl-btn {
+    width: 100%; text-align: left; display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; margin-bottom: 6px;
+    font-family: var(--ui); font-weight: 600; font-size: 13px;
+    border: 1px solid var(--border); background: var(--panel);
+    color: var(--text); cursor: pointer; transition: all 0.2s;
+  }
+  .ctrl-btn:last-child { margin-bottom: 0; }
+  .ctrl-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.04); }
+  .ctrl-btn .icon { font-size: 14px; width: 20px; text-align: center; }
+  .ctrl-btn .lbl { flex: 1; }
+  .ctrl-btn .arr { font-size: 10px; color: var(--muted); }
+
+  /* Gumroad store */
+  .store-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 12px; margin-bottom: 6px;
+    background: var(--panel); border: 1px solid var(--border);
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .store-item:hover { border-color: var(--purple); }
+  .store-item:last-child { margin-bottom: 0; }
+  .store-name { font-weight: 600; font-size: 13px; color: var(--text); }
+  .store-url { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+  .store-price { font-family: var(--mono); font-size: 14px; color: var(--purple); font-weight: 700; }
+
+  /* ── MAIN CONTENT ─────────────────────────────── */
+  .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Stats bar */
+  .stats-bar {
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  .stat-cell {
+    padding: 14px 18px; border-right: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-cell::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--accent-c, transparent);
+  }
+  .stat-cell.c-blue { --accent-c: var(--accent); }
+  .stat-cell.c-green { --accent-c: var(--green); }
+  .stat-cell.c-yellow { --accent-c: var(--yellow); }
+  .stat-cell.c-orange { --accent-c: var(--orange); }
+  .stat-cell.c-red { --accent-c: var(--red); }
+  .stat-cell.c-purple { --accent-c: var(--purple); }
+
+  .sc-label { font-family: var(--mono); font-size: 8px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+  .sc-value { font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--accent-c, var(--text)); line-height: 1; }
+  .sc-sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  /* Middle area */
+  .mid-area { flex: 1; display: grid; grid-template-columns: 1fr 220px; overflow: hidden; }
+
+  /* Pipeline monitor */
+  .pipeline-panel { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--bg2);
+    flex-shrink: 0;
+  }
+  .ph-title { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+  .ph-live { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; color: var(--orange); }
+  .ph-live .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); animation: pulse 1s infinite; }
+
+  .terminal {
+    flex: 1; overflow-y: auto; padding: 14px 18px;
+    font-family: var(--mono); font-size: 11px; line-height: 2;
+    background: #030609;
+  }
+  .terminal::-webkit-scrollbar { width: 3px; }
+  .terminal::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .t-line { display: flex; gap: 10px; align-items: flex-start; }
+  .t-time { color: #2a4060; flex-shrink: 0; }
+  .t-icon { flex-shrink: 0; }
+  .t-msg { flex: 1; word-break: break-all; }
+  .t-line.info .t-msg { color: var(--text); }
+  .t-line.ok .t-msg { color: var(--green); }
+  .t-line.warn .t-msg { color: var(--yellow); }
+  .t-line.err .t-msg { color: var(--red); }
+  .t-line.dim .t-msg { color: var(--muted); }
+  .t-line.orange .t-msg { color: var(--orange); }
+
+  /* URL input at bottom of pipeline panel */
+  .pipeline-input {
+    border-top: 1px solid var(--border); padding: 12px 18px;
+    background: var(--bg2); flex-shrink: 0; display: flex; gap: 10px;
+  }
+  .pi-input {
+    flex: 1; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--mono); font-size: 12px;
+    padding: 8px 12px; outline: none; transition: border-color 0.2s;
+  }
+  .pi-input:focus { border-color: var(--accent); }
+  .pi-input::placeholder { color: var(--muted); }
+  .pi-run {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+    padding: 8px 20px; border: 1px solid var(--accent); background: rgba(0,212,255,0.1);
+    color: var(--accent); cursor: pointer; text-transform: uppercase; transition: all 0.2s; white-space: nowrap;
+  }
+  .pi-run:hover { background: rgba(0,212,255,0.2); box-shadow: 0 0 14px rgba(0,212,255,0.2); }
+
+  /* Right column */
+  .right-col { display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Niches */
+  .niches-panel { flex: 1; border-bottom: 1px solid var(--border); overflow-y: auto; }
+  .niches-panel::-webkit-scrollbar { width: 3px; }
+
+  .niche-item {
+    padding: 10px 16px; border-bottom: 1px solid rgba(26,58,92,0.4);
+    cursor: pointer; transition: background 0.15s;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .niche-item:hover { background: rgba(0,212,255,0.03); }
+
+  .niche-name { font-weight: 600; font-size: 13px; color: var(--text); text-transform: capitalize; }
+  .niche-tags { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 2px; }
+
+  .niche-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Target users */
+  .users-panel { padding: 0; overflow-y: auto; }
+  .users-panel::-webkit-scrollbar { width: 3px; }
+
+  .user-item {
+    padding: 10px 16px; border-bottom: 1px solid rgba(26,58,92,0.4);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .user-handle { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .user-date { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+  .user-rm { font-family: var(--mono); font-size: 9px; color: var(--red); cursor: pointer; border: none; background: transparent; padding: 2px 6px; }
+  .user-rm:hover { opacity: 0.7; }
+
+  /* Bottom bar - job queue */
+  .bottom-bar { height: 180px; border-top: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+  .bottom-bar .panel-head { flex-shrink: 0; }
+
+  .job-table-wrap { flex: 1; overflow-y: auto; }
+  .job-table-wrap::-webkit-scrollbar { width: 3px; }
+  .job-table-wrap::-webkit-scrollbar-thumb { background: var(--border); }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); padding: 8px 16px; text-align: left;
+    border-bottom: 1px solid var(--border); background: var(--bg2);
+    position: sticky; top: 0;
+  }
+  tbody tr { border-bottom: 1px solid rgba(26,58,92,0.3); transition: background 0.1s; cursor: default; }
+  tbody tr:hover { background: rgba(0,212,255,0.02); }
+  td { padding: 8px 16px; font-size: 13px; vertical-align: middle; }
+  .td-id { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .td-title { font-weight: 600; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .td-src { font-family: var(--mono); font-size: 10px; color: var(--muted); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .td-time { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  }
+  .badge::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+  .b-ok { color: var(--green); background: rgba(0,255,157,0.07); border: 1px solid rgba(0,255,157,0.2); }
+  .b-err { color: var(--red); background: rgba(255,59,92,0.07); border: 1px solid rgba(255,59,92,0.2); }
+  .b-pend { color: var(--yellow); background: rgba(255,208,0,0.07); border: 1px solid rgba(255,208,0,0.2); animation: blink 1.5s infinite; }
+  .b-proc { color: var(--accent); background: rgba(0,212,255,0.07); border: 1px solid rgba(0,212,255,0.2); animation: blink 1s infinite; }
+
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+
+  .copy-btn {
+    font-family: var(--mono); font-size: 9px; padding: 3px 8px;
+    border: 1px solid var(--border); color: var(--accent); background: transparent;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .copy-btn:hover { border-color: var(--accent); background: rgba(0,212,255,0.06); }
+
+  .empty-state { text-align: center; padding: 28px; color: var(--muted); }
+  .empty-state .ei { font-size: 28px; margin-bottom: 8px; }
+  .empty-state .et { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; }
+
+  /* Filter buttons */
+  .filter-row { display: flex; gap: 6px; }
+  .f-btn {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    padding: 4px 12px; border: 1px solid var(--border); color: var(--muted);
+    background: transparent; cursor: pointer; transition: all 0.15s;
+  }
+  .f-btn.active, .f-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.05); }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────── -->
+<header>
+  <div class="logo-block">
+    <div class="logo-icon">CF</div>
+    <div class="logo-text">
+      <div class="logo-title">CLIPFARMER</div>
+      <div class="logo-sub">CREATOR COMMAND CENTER</div>
+    </div>
+  </div>
+  <div class="header-center">
+    <div class="sys-badge active"><span class="dot"></span>SYSTEM ACTIVE</div>
+    <div class="sys-badge sandbox">◈ SANDBOX MODE</div>
+  </div>
+  <div class="header-right">
+    <div class="clock" id="clock">--:--:--</div>
+    <div class="clock" id="datestamp" style="color:var(--muted);"></div>
+    <button class="delete-btn" onclick="logWarn('Delete sandbox action requires confirmation.')">⚠ Delete Sandbox</button>
+  </div>
+</header>
+
+<div class="main-wrap">
+
+  <!-- ── LEFT SIDEBAR ─────────────────────────────────── -->
+  <aside class="sidebar">
+
+    <!-- Platform API Status -->
+    <div class="s-section">
+      <div class="s-title">Platform API Status</div>
+
+      <div class="platform-item">
+        <div class="platform-left">
+          <div class="platform-dot green"></div>
+          <div>
+            <div class="platform-name">YouTube</div>
+            <div class="platform-api">Data API v3</div>
+          </div>
+        </div>
+        <div class="platform-tag connected">CONNECTED</div>
+      </div>
+      <button class="platform-action" onclick="logInfo('YouTube channel sync triggered.')">⟳ Sync Channel</button>
+
+      <div class="platform-item" style="margin-top:10px;">
+        <div class="platform-left">
+          <div class="platform-dot yellow"></div>
+          <div>
+            <div class="platform-name">TikTok</div>
+            <div class="platform-api">Content Posting API</div>
+          </div>
+        </div>
+        <div class="platform-tag pending">PENDING</div>
+      </div>
+      <button class="platform-action orange" onclick="logWarn('TikTok API review pending approval.')">→ Submit Request</button>
+
+      <div class="platform-item" style="margin-top:10px;">
+        <div class="platform-left">
+          <div class="platform-dot yellow"></div>
+          <div>
+            <div class="platform-name">Instagram</div>
+            <div class="platform-api">Graph API</div>
+          </div>
+        </div>
+        <div class="platform-tag pending">PENDING</div>
+      </div>
+      <button class="platform-action orange" onclick="logWarn('Instagram Graph API review pending.')">→ Submit Request</button>
+    </div>
+
+    <!-- Pipeline Controls -->
+    <div class="s-section">
+      <div class="s-title">Pipeline Controls</div>
+      <button class="ctrl-btn" onclick="triggerPipeline('full')">
+        <span class="icon">▶</span><span class="lbl">Run Full Automation Cycle</span><span class="arr">›</span>
+      </button>
+      <button class="ctrl-btn" onclick="triggerPipeline('queue')">
+        <span class="icon">⚙</span><span class="lbl">Process Video Queue</span><span class="arr">›</span>
+      </button>
+      <button class="ctrl-btn" onclick="triggerPipeline('youtube')">
+        <span class="icon">↑</span><span class="lbl">Publish to YouTube</span><span class="arr">›</span>
+      </button>
+      <button class="ctrl-btn" onclick="triggerPipeline('analytics')">
+        <span class="icon">◎</span><span class="lbl">Analytics Brain Report</span><span class="arr">›</span>
+      </button>
+      <button class="ctrl-btn" onclick="triggerPipeline('tiktok')">
+        <span class="icon">♪</span><span class="lbl">Upload to TikTok</span><span class="arr">›</span>
+      </button>
+    </div>
+
+    <!-- Gumroad Store -->
+    <div class="s-section">
+      <div class="s-title">Gumroad Store</div>
+      <div class="store-item">
+        <div>
+          <div class="store-name">Creator Pack</div>
+          <div class="store-url">gumroad.com/l/content-creator-prompts</div>
+        </div>
+        <div class="store-price">$9</div>
+      </div>
+      <div class="store-item">
+        <div>
+          <div class="store-name">Entrepreneur Pack</div>
+          <div class="store-url">gumroad.com/l/entrepreneur-prompts</div>
+        </div>
+        <div class="store-price">$12</div>
+      </div>
+      <div class="store-item">
+        <div>
+          <div class="store-name">Mega Vault Bundle</div>
+          <div class="store-url">gumroad.com/l/kkomex</div>
+        </div>
+        <div class="store-price">$24</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── MAIN CONTENT ──────────────────────────────────── -->
+  <div class="main-content">
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-cell c-blue">
+        <div class="sc-label">Global Views</div>
+        <div class="sc-value" id="s-views">0</div>
+        <div class="sc-sub">all platforms</div>
+      </div>
+      <div class="stat-cell c-green">
+        <div class="sc-label">Avg Watch Time</div>
+        <div class="sc-value" id="s-watch">0s</div>
+        <div class="sc-sub">per clip</div>
+      </div>
+      <div class="stat-cell c-yellow">
+        <div class="sc-label">Est. Conversions</div>
+        <div class="sc-value" id="s-conv">0</div>
+        <div class="sc-sub">link clicks</div>
+      </div>
+      <div class="stat-cell c-orange">
+        <div class="sc-label">Clips Posted</div>
+        <div class="sc-value" id="s-clips">0</div>
+        <div class="sc-sub">all time</div>
+      </div>
+      <div class="stat-cell c-purple">
+        <div class="sc-label">Total Revenue</div>
+        <div class="sc-value" id="s-rev">$0</div>
+        <div class="sc-sub">gumroad + ads</div>
+      </div>
+      <div class="stat-cell c-red">
+        <div class="sc-label">Followers</div>
+        <div class="sc-value" id="s-fol">0</div>
+        <div class="sc-sub">goal: 1,000</div>
+      </div>
+    </div>
+
+    <!-- Mid Area -->
+    <div class="mid-area">
+
+      <!-- Pipeline Monitor -->
+      <div class="pipeline-panel">
+        <div class="panel-head">
+          <div class="ph-title">Pipeline Render Monitor</div>
+          <div class="ph-live"><span class="dot"></span>LIVE</div>
+        </div>
+        <div class="terminal" id="terminal">
+          <!-- filled by JS -->
+        </div>
+        <div class="pipeline-input">
+          <input class="pi-input" id="urlInput" type="text"
+            placeholder="https://youtube.com/watch?v=... or TikTok / Instagram URL"
+            onkeydown="if(event.key==='Enter') submitJob()">
+          <button class="pi-run" onclick="submitJob()">▶ RUN</button>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="right-col">
+        <!-- Niches -->
+        <div class="panel-head" style="flex-shrink:0; border-bottom:1px solid var(--border);">
+          <div class="ph-title">Active Content Niches</div>
+        </div>
+        <div class="niches-panel">
+          <div class="niche-item">
+            <div><div class="niche-name">satisfying</div><div class="niche-tags">asmr • pressure wash • sand</div></div>
+            <div class="niche-dot" style="background:#00d4ff;box-shadow:0 0 6px #00d4ff;"></div>
+          </div>
+          <div class="niche-item">
+            <div><div class="niche-name">animals</div><div class="niche-tags">pets • wildlife • funny</div></div>
+            <div class="niche-dot" style="background:#00ff9d;box-shadow:0 0 6px #00ff9d;"></div>
+          </div>
+          <div class="niche-item">
+            <div><div class="niche-name">hacks</div><div class="niche-tags">kitchen • cleaning • tips</div></div>
+            <div class="niche-dot" style="background:#ffd000;box-shadow:0 0 6px #ffd000;"></div>
+          </div>
+          <div class="niche-item">
+            <div><div class="niche-name">facts</div><div class="niche-tags">science • psychology • history</div></div>
+            <div class="niche-dot" style="background:#ff6b35;box-shadow:0 0 6px #ff6b35;"></div>
+          </div>
+          <div class="niche-item">
+            <div><div class="niche-name">motivational</div><div class="niche-tags">mindset • discipline • grind</div></div>
+            <div class="niche-dot" style="background:#a855f7;box-shadow:0 0 6px #a855f7;"></div>
+          </div>
+          <div class="niche-item">
+            <div><div class="niche-name">cooking</div><div class="niche-tags">recipes • fast • aesthetic</div></div>
+            <div class="niche-dot" style="background:#ff3b5c;box-shadow:0 0 6px #ff3b5c;"></div>
+          </div>
+        </div>
+
+        <!-- Target Users -->
+        <div class="panel-head" style="flex-shrink:0; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+          <div class="ph-title">Sandbox Target Users</div>
+        </div>
+        <div class="users-panel">
+          <div class="user-item">
+            <div>
+              <div class="user-handle">kenisterjz</div>
+              <div class="user-date">Jun 16, 2026 4:08 AM</div>
+            </div>
+            <button class="user-rm" onclick="logWarn('Remove user action requires dashboard confirm.')">⊗ Remove</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /mid-area -->
+
+    <!-- Bottom - Job Queue -->
+    <div class="bottom-bar">
+      <div class="panel-head">
+        <div class="ph-title">Job Queue</div>
+        <div class="filter-row">
+          <button class="f-btn active" onclick="setFilter('all',this)">ALL</button>
+          <button class="f-btn" onclick="setFilter('complete',this)">DONE</button>
+          <button class="f-btn" onclick="setFilter('pending',this)">PENDING</button>
+          <button class="f-btn" onclick="setFilter('error',this)">ERRORS</button>
+        </div>
+      </div>
+      <div class="job-table-wrap" id="jobTable">
+        <div class="empty-state">
+          <div class="ei">🎬</div>
+          <div class="et">NO JOBS YET — PASTE A URL ABOVE AND PRESS RUN</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /main-wrap -->
+
+<script>
+// ── Clock ──────────────────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('en-US', { hour12: false });
+  document.getElementById('datestamp').textContent =
+    now.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── Terminal ───────────────────────────────────────────────────────────────────
+const term = document.getElementById('terminal');
+
+const STARTUP_LINES = [
+  { type:'orange', icon:'◈', msg:'Starting automation cycle...' },
+  { type:'dim',    icon:'◆', msg:'Retrieving source media...' },
+  { type:'dim',    icon:'◆', msg:'Running AI transcription...' },
+  { type:'info',   icon:'◆', msg:'2026-06-15 21:08:26,656 [clipfarmer.processor] INFO: Loading Whisper model: base' },
+  { type:'info',   icon:'◆', msg:'2026-06-15 21:08:28,095 [clipfarmer.processor] INFO: Whisper model loaded' },
+  { type:'warn',   icon:'◆', msg:"warnings.warn(\"FP16 is not supported on CPU; using FP32 instead\")" },
+  { type:'dim',    icon:'◆', msg:'  0%|          | 0/5593 [00:00<?, ?frames/s]' },
+  { type:'dim',    icon:'####1', msg:'  2738/5593 [00:07<00:10, 373.82frames/s]' },
+  { type:'dim',    icon:'####1', msg:'  2738/5593 [00:20<00:10, 373.82frames/s]' },
+  { type:'ok',     icon:'X',  msg:'scheduler.py: Completed with warnings' },
+  { type:'warn',   icon:'⚠',  msg:'TikTok API: Application submitted — awaiting developer approval' },
+];
+
+function addTermLine(type, icon, msg) {
+  const now = new Date();
+  const ts = `[${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}]`;
+  const div = document.createElement('div');
+  div.className = `t-line ${type}`;
+  div.innerHTML = `<span class="t-time">${ts}</span><span class="t-icon">${icon}</span><span class="t-msg">${msg}</span>`;
+  term.appendChild(div);
+  term.scrollTop = term.scrollHeight;
+}
+
+function logInfo(msg)  { addTermLine('info','◆',msg); }
+function logOk(msg)    { addTermLine('ok','✓',msg); }
+function logWarn(msg)  { addTermLine('warn','⚠',msg); }
+function logErr(msg)   { addTermLine('err','✗',msg); }
+function logDim(msg)   { addTermLine('dim','·',msg); }
+
+// replay startup lines with delay
+STARTUP_LINES.forEach((l, i) => {
+  setTimeout(() => addTermLine(l.type, l.icon, l.msg), i * 120);
+});
+
+// ── Pipeline triggers ──────────────────────────────────────────────────────────
+const pipelineMessages = {
+  full:      ['Triggering full automation cycle...', 'Scanning YouTube trending...', 'Queueing discovered clips...', 'Pipeline running — check logs.'],
+  queue:     ['Processing video queue...', 'Running Whisper transcription...', 'Applying caption overlay...', 'Queue processed ✓'],
+  youtube:   ['Authenticating YouTube Data API...', 'Preparing upload payload...', 'Upload initiated — monitor for publish_id.'],
+  analytics: ['Running AI analytics brain...', 'Aggregating view metrics...', 'Generating performance report...', 'Report saved to analytics/report.md ✓'],
+  tiktok:    ['Loading clipfarmer_run.py...', 'Opening TikTok OAuth flow...', 'Awaiting authorization code...'],
+};
+
+function triggerPipeline(type) {
+  const msgs = pipelineMessages[type] || ['Running...'];
+  msgs.forEach((m, i) => setTimeout(() => logInfo(m), i * 300));
+  setTimeout(() => {
+    if (type === 'tiktok') {
+      logWarn('Run: python C:\\clipfarmer\\clipfarmer\\clipfarmer_run.py in your terminal.');
+    }
+  }, msgs.length * 300 + 100);
+}
+
+// ── Stats (load from jobs.json) ────────────────────────────────────────────────
+let allJobs = [];
+let activeFilter = 'all';
+
+async function loadJobs() {
+  try {
+    const r = await fetch('jobs.json?t=' + Date.now());
+    if (!r.ok) { logWarn('jobs.json not found — run a pipeline job first.'); return; }
+    const raw  = await r.json();
+    allJobs    = Array.isArray(raw) ? raw : Object.values(raw);
+    renderStats();
+    renderTable();
+    logOk(`Loaded ${allJobs.length} jobs from jobs.json`);
+  } catch(e) { logWarn('Could not load jobs.json: ' + e.message); }
+}
+
+function fmtDuration(secs) {
+  if (!secs) return '0s';
+  if (secs < 60) return secs + 's';
+  return Math.floor(secs / 60) + 'm ' + (secs % 60) + 's';
+}
+
+function animateCount(id, target, prefix='', suffix='') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = 0, dur = 800, step = 16;
+  let current = start, startTime = null;
+  function tick(ts) {
+    if (!startTime) startTime = ts;
+    const pct = Math.min((ts - startTime) / dur, 1);
+    const ease = 1 - Math.pow(1 - pct, 3);
+    current = Math.round(ease * target);
+    el.textContent = prefix + current.toLocaleString() + suffix;
+    if (pct < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function renderStats() {
+  const done     = allJobs.filter(j => j.process_status === 'complete').length;
+  const errors   = allJobs.filter(j => j.process_status === 'error' || j.download_status === 'error').length;
+  const pending  = allJobs.length - done - errors;
+
+  // avg duration of completed jobs (proxy for avg watch time)
+  const durations = allJobs
+    .filter(j => j.process_status === 'complete' && j.duration)
+    .map(j => Number(j.duration));
+  const avgDur = durations.length
+    ? Math.round(durations.reduce((a,b) => a+b, 0) / durations.length)
+    : 0;
+
+  // Clips posted drives other estimates
+  // Views: rough estimate — avg 400 views/clip for a new channel
+  const estViews = done * 400;
+  // Conversions: ~0.5% click-through
+  const estConv  = Math.round(estViews * 0.005);
+
+  animateCount('s-clips',  done);
+  animateCount('s-views',  estViews);
+  animateCount('s-conv',   estConv);
+  animateCount('s-fol',    0);  // real follower count requires API — shows 0 until connected
+
+  // Watch time
+  document.getElementById('s-watch').textContent = avgDur ? fmtDuration(avgDur) : '0s';
+
+  // Revenue placeholder (Gumroad not connected yet)
+  document.getElementById('s-rev').textContent = '$0';
+}
+
+// ── Job table ──────────────────────────────────────────────────────────────────
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function jobStatus(job) {
+  if (job.process_status === 'complete') return 'complete';
+  if (job.process_status === 'error' || job.download_status === 'error') return 'error';
+  if (job.download_status === 'complete') return 'processing';
+  return 'pending';
+}
+
+function badgeHtml(s) {
+  const map = { complete:{cls:'b-ok',lbl:'COMPLETE'}, error:{cls:'b-err',lbl:'FAILED'}, processing:{cls:'b-proc',lbl:'PROCESSING'}, pending:{cls:'b-pend',lbl:'PENDING'} };
+  const m = map[s] || map.pending;
+  return `<span class="badge ${m.cls}">${m.lbl}</span>`;
+}
+
+function shortUrl(url) {
+  try { const u = new URL(url); return u.hostname + u.pathname.slice(0,16) + '…'; }
+  catch { return (url||'').slice(0,24) + '…'; }
+}
+
+function fmtTime(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+}
+
+function renderTable() {
+  const filtered = activeFilter === 'all' ? allJobs
+    : allJobs.filter(j => {
+        const s = jobStatus(j);
+        if (activeFilter === 'complete') return s === 'complete';
+        if (activeFilter === 'error')    return s === 'error';
+        if (activeFilter === 'pending')  return s === 'pending' || s === 'processing';
+        return true;
+      });
+
+  const container = document.getElementById('jobTable');
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state"><div class="ei">🎬</div><div class="et">${allJobs.length===0?'NO JOBS YET — PASTE A URL AND PRESS RUN':'NO JOBS MATCH THIS FILTER'}</div></div>`;
+    return;
+  }
+
+  const rows = [...filtered]
+    .sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0))
+    .map(j => `<tr>
+      <td class="td-id">${(j.id||'').slice(0,8).toUpperCase()||'—'}</td>
+      <td class="td-title" title="${j.title||''}">${j.title||'(processing...)'}</td>
+      <td class="td-src" title="${j.url||''}">${shortUrl(j.url||'')}</td>
+      <td>${badgeHtml(jobStatus(j))}</td>
+      <td class="td-time">${fmtTime(j.created_at)}</td>
+      <td class="td-time">${fmtTime(j.processed_at)}</td>
+      <td>${j.processed_path?`<button class="copy-btn" onclick="cp('${j.processed_path.replace(/\\/g,'\\\\')}')" >📋 COPY</button>`:'—'}</td>
+    </tr>`).join('');
+
+  container.innerHTML = `<table>
+    <thead><tr><th>ID</th><th>Title</th><th>Source</th><th>Status</th><th>Created</th><th>Processed</th><th>Output</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function cp(path) {
+  navigator.clipboard.writeText(path).then(() => logOk('Copied to clipboard: ' + path)).catch(()=>{});
+}
+
+// ── Submit job ─────────────────────────────────────────────────────────────────
+function submitJob() {
+  const input = document.getElementById('urlInput');
+  const url = input.value.trim();
+  if (!url) return;
+  const cmd = `python pipeline.py --url "${url}"`;
+  logInfo('New job queued: ' + url);
+  logOk('Command ready → ' + cmd);
+  navigator.clipboard.writeText(cmd).then(() => logDim('Command copied to clipboard. Paste in terminal.')).catch(()=>{});
+  input.value = '';
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+loadJobs();
+setInterval(loadJobs, 10000);
+</script>
+</body>
+</html>

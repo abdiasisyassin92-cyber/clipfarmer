@@ -1,0 +1,45 @@
+# === ClipFarmer .gitignore ===
+
+# Secrets — NEVER commit these
+client_secrets.json
+*token*.pickle
+*token*.json
+*.env
+.env.*
+
+# Large media files
+downloads/
+processed/
+storage/
+music/
+temp/
+*.mp4
+*.mp3
+*.wav
+*.webm
+*.mkv
+
+# Runtime data (regenerated automatically)
+jobs.json
+analytics.json
+brain.json
+logs/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Duplicate / junk
+"instagram_uploader (1).py"
+
+# Windows artifacts
+Thumbs.db
+Desktop.ini
+*.lnk
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+.eggs/

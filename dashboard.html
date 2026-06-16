@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS — ClipFarmer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap');
+
+  :root {
+    --bg:        #020810;
+    --bg2:       #060f1c;
+    --panel:     #0a1628;
+    --border:    #0d3a6e;
+    --accent:    #00c8ff;
+    --accent2:   #0070d4;
+    --green:     #00ff9d;
+    --yellow:    #ffd000;
+    --red:       #ff3b5c;
+    --text:      #cce8ff;
+    --muted:     #3a6a9a;
+    --mono:      'Share Tech Mono', monospace;
+    --ui:        'Exo 2', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--ui);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 200, 255, 0.015) 2px,
+      rgba(0, 200, 255, 0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(90deg, var(--bg2), var(--bg));
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(0, 200, 255, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo::before {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 12px var(--accent); }
+    50% { opacity: 0.4; box-shadow: 0 0 4px var(--accent); }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .clock {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  .refresh-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 6px 16px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+  }
+
+  .refresh-btn:hover {
+    background: rgba(0, 200, 255, 0.1);
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(0, 200, 255, 0.2);
+  }
+
+  /* ── Layout ── */
+  main {
+    padding: 28px 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ── Stats row ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-color, var(--accent)), transparent);
+  }
+
+  .stat-card.green { --accent-color: var(--green); }
+  .stat-card.yellow { --accent-color: var(--yellow); }
+  .stat-card.red { --accent-color: var(--red); }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--accent-color, var(--accent));
+    line-height: 1;
+    text-shadow: 0 0 20px var(--accent-color, var(--accent));
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+
+  /* ── URL input panel ── */
+  .input-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  .panel-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .panel-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .url-input-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .url-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .url-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(0, 200, 255, 0.15);
+  }
+
+  .url-input::placeholder { color: var(--muted); }
+
+  .run-btn {
+    background: var(--accent2);
+    border: 1px solid var(--accent);
+    color: white;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    padding: 12px 28px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .run-btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
+  }
+
+  .run-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .cmd-hint {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--bg);
+    border-left: 2px solid var(--border);
+    white-space: pre;
+  }
+
+  /* ── Jobs table ── */
+  .jobs-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+  }
+
+  .jobs-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filter-btns {
+    display: flex;
+    gap: 8px;
+  }
+
+  .filter-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 5px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0, 200, 255, 0.06);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 12px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(13, 58, 110, 0.4);
+    transition: background 0.15s;
+  }
+
+  tbody tr:hover { background: rgba(0, 200, 255, 0.03); }
+  tbody tr:last-child { border-bottom: none; }
+
+  td {
+    padding: 14px 20px;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  .td-title {
+    font-weight: 600;
+    color: var(--text);
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .td-id {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .td-url {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    border-radius: 2px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .badge-complete {
+    color: var(--green);
+    background: rgba(0, 255, 157, 0.08);
+    border: 1px solid rgba(0, 255, 157, 0.2);
+  }
+
+  .badge-error {
+    color: var(--red);
+    background: rgba(255, 59, 92, 0.08);
+    border: 1px solid rgba(255, 59, 92, 0.2);
+  }
+
+  .badge-pending {
+    color: var(--yellow);
+    background: rgba(255, 208, 0, 0.08);
+    border: 1px solid rgba(255, 208, 0, 0.2);
+  }
+
+  .badge-downloading {
+    color: var(--accent);
+    background: rgba(0, 200, 255, 0.08);
+    border: 1px solid rgba(0, 200, 255, 0.2);
+    animation: blink 1.2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .td-time {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .open-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 12px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+  }
+
+  .open-btn:hover {
+    background: rgba(0, 200, 255, 0.1);
+    border-color: var(--accent);
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    filter: grayscale(1) opacity(0.4);
+  }
+
+  .empty-text {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 2px;
+  }
+
+  /* ── Terminal log ── */
+  .log-panel {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    margin-top: 28px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  .log-title {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .log-body {
+    padding: 16px 18px;
+    max-height: 200px;
+    overflow-y: auto;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .log-body::-webkit-scrollbar { width: 4px; }
+  .log-body::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .log-line { white-space: pre-wrap; word-break: break-all; }
+  .log-line.info { color: var(--text); }
+  .log-line.ok { color: var(--green); }
+  .log-line.err { color: var(--red); }
+  .log-line.warn { color: var(--yellow); }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    main { padding: 16px; }
+    header { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">JARVIS // CLIPFARMER</div>
+  <div class="header-right">
+    <div class="clock" id="clock">--:--:--</div>
+    <button class="refresh-btn" onclick="loadJobs()">↻ REFRESH</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Jobs</div>
+      <div class="stat-value" id="stat-total">0</div>
+      <div class="stat-sub">all time</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Completed</div>
+      <div class="stat-value" id="stat-ok">0</div>
+      <div class="stat-sub">ready to post</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value" id="stat-pending">0</div>
+      <div class="stat-sub">in queue</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Failed</div>
+      <div class="stat-value" id="stat-failed">0</div>
+      <div class="stat-sub">needs attention</div>
+    </div>
+  </div>
+
+  <!-- URL Input -->
+  <div class="input-panel">
+    <div class="panel-title">New Job</div>
+    <div class="url-input-row">
+      <input class="url-input" id="urlInput" type="text"
+             placeholder="https://youtube.com/watch?v=..."
+             onkeydown="if(event.key==='Enter') submitJob()">
+      <button class="run-btn" onclick="submitJob()">▶ RUN PIPELINE</button>
+    </div>
+    <div class="cmd-hint" id="cmdHint">python pipeline.py --url &lt;paste URL above&gt;</div>
+  </div>
+
+  <!-- Jobs Table -->
+  <div class="jobs-panel">
+    <div class="jobs-header">
+      <div class="panel-title" style="margin:0">Job Queue</div>
+      <div class="filter-btns">
+        <button class="filter-btn active" onclick="setFilter('all', this)">ALL</button>
+        <button class="filter-btn" onclick="setFilter('complete', this)">DONE</button>
+        <button class="filter-btn" onclick="setFilter('pending', this)">PENDING</button>
+        <button class="filter-btn" onclick="setFilter('error', this)">ERRORS</button>
+      </div>
+    </div>
+    <div id="tableContainer">
+      <div class="empty-state">
+        <div class="empty-icon">🎬</div>
+        <div class="empty-text">NO JOBS YET — PASTE A URL ABOVE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <div class="log-panel">
+    <div class="log-header">
+      <div class="log-title">System Log</div>
+      <button class="filter-btn" onclick="clearLog()">CLEAR</button>
+    </div>
+    <div class="log-body" id="logBody">
+      <div class="log-line info">[JARVIS] Dashboard initialized. Waiting for jobs...</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ── Clock ─────────────────────────────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toLocaleTimeString('en-US', { hour12: false });
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  let allJobs = [];
+  let activeFilter = 'all';
+
+  // ── Log ───────────────────────────────────────────────────────────────────
+  function log(msg, type = 'info') {
+    const body = document.getElementById('logBody');
+    const ts = new Date().toLocaleTimeString('en-US', { hour12: false });
+    const line = document.createElement('div');
+    line.className = `log-line ${type}`;
+    line.textContent = `[${ts}] ${msg}`;
+    body.appendChild(line);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function clearLog() {
+    document.getElementById('logBody').innerHTML = '';
+  }
+
+  // ── Load jobs from jobs.json ───────────────────────────────────────────────
+  async function loadJobs() {
+    try {
+      // Attempt to load jobs.json from same directory
+      const response = await fetch('jobs.json?t=' + Date.now());
+      if (!response.ok) {
+        log('jobs.json not found — run your first pipeline job to see data here.', 'warn');
+        return;
+      }
+      const data = await response.json();
+      allJobs = Object.values(data);
+      log(`Loaded ${allJobs.length} jobs`, 'ok');
+      renderStats();
+      renderTable();
+    } catch (e) {
+      log('Could not load jobs.json: ' + e.message, 'warn');
+      log('Tip: Open this dashboard from the clipfarmer/ folder, or serve it with: python -m http.server 8080', 'info');
+    }
+  }
+
+  // ── Stats ─────────────────────────────────────────────────────────────────
+  function renderStats() {
+    const total = allJobs.length;
+    const ok = allJobs.filter(j => j.process_status === 'complete').length;
+    const failed = allJobs.filter(j =>
+      j.process_status === 'error' || j.download_status === 'error').length;
+    const pending = total - ok - failed;
+
+    animateNumber('stat-total', total);
+    animateNumber('stat-ok', ok);
+    animateNumber('stat-pending', pending);
+    animateNumber('stat-failed', failed);
+  }
+
+  function animateNumber(id, target) {
+    const el = document.getElementById(id);
+    const current = parseInt(el.textContent) || 0;
+    if (current === target) return;
+    const step = target > current ? 1 : -1;
+    let val = current;
+    const interval = setInterval(() => {
+      val += step;
+      el.textContent = val;
+      if (val === target) clearInterval(interval);
+    }, 30);
+  }
+
+  // ── Table ─────────────────────────────────────────────────────────────────
+  function setFilter(filter, btn) {
+    activeFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTable();
+  }
+
+  function getJobStatus(job) {
+    if (job.process_status === 'complete') return 'complete';
+    if (job.process_status === 'error' || job.download_status === 'error') return 'error';
+    if (job.download_status === 'complete') return 'processing';
+    return 'pending';
+  }
+
+  function statusBadge(status) {
+    const map = {
+      complete:   { cls: 'badge-complete',    label: 'COMPLETE' },
+      error:      { cls: 'badge-error',       label: 'FAILED' },
+      processing: { cls: 'badge-downloading', label: 'PROCESSING' },
+      pending:    { cls: 'badge-pending',     label: 'PENDING' },
+    };
+    const s = map[status] || map.pending;
+    return `<span class="badge ${s.cls}">${s.label}</span>`;
+  }
+
+  function shortId(id) {
+    return id ? id.slice(0, 8).toUpperCase() : '—';
+  }
+
+  function shortUrl(url) {
+    try {
+      const u = new URL(url);
+      return u.hostname + (u.pathname.length > 1 ? u.pathname.slice(0, 20) + '…' : '');
+    } catch { return url.slice(0, 30) + '…'; }
+  }
+
+  function formatTime(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleString('en-US', { month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: false });
+  }
+
+  function renderTable() {
+    const filtered = activeFilter === 'all'
+      ? allJobs
+      : allJobs.filter(j => {
+          const s = getJobStatus(j);
+          if (activeFilter === 'complete') return s === 'complete';
+          if (activeFilter === 'error') return s === 'error';
+          if (activeFilter === 'pending') return s === 'pending' || s === 'processing';
+          return true;
+        });
+
+    const container = document.getElementById('tableContainer');
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🎬</div>
+          <div class="empty-text">${allJobs.length === 0 ? 'NO JOBS YET — PASTE A URL ABOVE' : 'NO JOBS MATCH THIS FILTER'}</div>
+        </div>`;
+      return;
+    }
+
+    const rows = [...filtered]
+      .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+      .map(job => {
+        const status = getJobStatus(job);
+        const outputFile = job.processed_path
+          ? job.processed_path.split(/[/\\]/).pop()
+          : '—';
+        return `
+          <tr>
+            <td class="td-id">${shortId(job.id)}</td>
+            <td class="td-title" title="${job.title || job.url || ''}">${job.title || '(downloading...)'}</td>
+            <td class="td-url" title="${job.url || ''}">${shortUrl(job.url || '')}</td>
+            <td>${statusBadge(status)}</td>
+            <td class="td-time">${formatTime(job.created_at)}</td>
+            <td class="td-time">${formatTime(job.processed_at)}</td>
+            <td>
+              ${job.processed_path
+                ? `<button class="open-btn" onclick="copyPath('${job.processed_path.replace(/\\/g, '\\\\')}')">📋 COPY PATH</button>`
+                : '—'}
+            </td>
+          </tr>`;
+      }).join('');
+
+    container.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Source</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Processed</th>
+            <th>Output</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  // ── Submit job ─────────────────────────────────────────────────────────────
+  function submitJob() {
+    const input = document.getElementById('urlInput');
+    const url = input.value.trim();
+    if (!url) return;
+
+    const cmd = `python pipeline.py --url "${url}"`;
+    document.getElementById('cmdHint').textContent = cmd;
+    log(`Command ready: ${cmd}`, 'ok');
+    log('Copy the command above and run it in your terminal in the clipfarmer/ folder.', 'info');
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(cmd).then(() => {
+      log('✅ Command copied to clipboard!', 'ok');
+    }).catch(() => {});
+  }
+
+  function copyPath(path) {
+    navigator.clipboard.writeText(path).then(() => {
+      log(`Copied to clipboard: ${path}`, 'ok');
+    });
+  }
+
+  // ── URL input hint update ──────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('urlInput');
+    input.addEventListener('input', () => {
+      const url = input.value.trim();
+      const hint = document.getElementById('cmdHint');
+      hint.textContent = url
+        ? `python pipeline.py --url "${url}"`
+        : 'python pipeline.py --url <paste URL above>';
+    });
+
+    loadJobs();
+    // Auto-refresh every 10s
+    setInterval(loadJobs, 10000);
+  });
+</script>
+</body>
+</html>
