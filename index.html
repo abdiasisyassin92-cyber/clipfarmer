@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClipFarmer — Automated Short-Form Content Pipeline</title>
+  <meta name="description" content="ClipFarmer automates short-form video creation and publishing to TikTok, YouTube Shorts, and Instagram Reels. Built by Abdiasis Yassin Said." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0a0a0f;
+      --surface: #12121a;
+      --border:  #1e1e2e;
+      --accent:  #7c3aed;
+      --accent2: #06b6d4;
+      --gold:    #f59e0b;
+      --text:    #e2e8f0;
+      --muted:   #64748b;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.6; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+    }
+    .logo { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.5px; }
+    .logo span { color: var(--accent); }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.875rem; margin-left: 1.5rem; transition: color 0.2s; }
+    nav a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent); color: #fff !important;
+      padding: 0.45rem 1.1rem; border-radius: 6px; font-weight: 600;
+    }
+    .nav-cta:hover { background: #6d28d9; }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center; padding: 6rem 1.5rem 5rem;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(124,58,237,0.18) 0%, transparent 70%);
+    }
+    .badge {
+      display: inline-block; background: rgba(124,58,237,0.15);
+      border: 1px solid rgba(124,58,237,0.35); border-radius: 999px;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em;
+      color: #a78bfa; padding: 0.3rem 0.9rem; margin-bottom: 1.5rem;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 900;
+      letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 1.25rem;
+    }
+    h1 .grad {
+      background: linear-gradient(135deg, #a78bfa 0%, #06b6d4 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      max-width: 540px; margin: 0 auto 2.5rem;
+      color: var(--muted); font-size: 1.1rem;
+    }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-block; background: var(--accent);
+      color: #fff; font-weight: 700; font-size: 1rem;
+      padding: 0.85rem 2rem; border-radius: 8px;
+      text-decoration: none; transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: #6d28d9; transform: translateY(-1px); }
+    .btn-ghost {
+      display: inline-block; border: 1px solid var(--border);
+      color: var(--text); font-weight: 600; font-size: 1rem;
+      padding: 0.85rem 2rem; border-radius: 8px;
+      text-decoration: none; transition: border-color 0.2s, transform 0.15s;
+    }
+    .btn-ghost:hover { border-color: var(--accent); transform: translateY(-1px); }
+
+    /* ── STAT BAR ── */
+    .stats {
+      display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+      padding: 2.5rem 1.5rem;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .stat { text-align: center; }
+    .stat-n { font-size: 2rem; font-weight: 900; color: var(--accent2); }
+    .stat-l { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.2rem; }
+
+    /* ── SECTION WRAPPER ── */
+    .section { max-width: 1000px; margin: 0 auto; padding: 5rem 1.5rem; }
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem;
+    }
+    h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 900; letter-spacing: -0.5px; margin-bottom: 1rem; }
+    .section-sub { color: var(--muted); font-size: 1.05rem; max-width: 520px; margin-bottom: 3rem; }
+
+    /* ── FEATURE GRID ── */
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.75rem; transition: border-color 0.2s;
+    }
+    .card:hover { border-color: var(--accent); }
+    .card-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
+    .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .card p { font-size: 0.875rem; color: var(--muted); }
+
+    /* ── PRODUCT CTA ── */
+    .product-section { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .product-inner {
+      max-width: 700px; margin: 0 auto; padding: 5rem 1.5rem; text-align: center;
+    }
+    .price-badge {
+      display: inline-block; background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3); border-radius: 8px;
+      font-size: 0.8rem; font-weight: 700; color: var(--gold);
+      padding: 0.35rem 0.85rem; margin-bottom: 1.5rem; letter-spacing: 0.04em;
+    }
+    .product-title { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 900; margin-bottom: 1rem; }
+    .product-sub { color: var(--muted); margin-bottom: 2rem; font-size: 1rem; }
+    .includes { list-style: none; text-align: left; display: inline-block; margin-bottom: 2.5rem; }
+    .includes li { padding: 0.4rem 0; font-size: 0.95rem; }
+    .includes li::before { content: "✓ "; color: var(--accent2); font-weight: 700; }
+    .price-row { display: flex; align-items: baseline; justify-content: center; gap: 0.75rem; margin-bottom: 1.75rem; }
+    .price-now { font-size: 2.5rem; font-weight: 900; color: var(--gold); }
+    .price-was { font-size: 1.1rem; color: var(--muted); text-decoration: line-through; }
+    .btn-gold {
+      display: inline-block; background: var(--gold);
+      color: #000; font-weight: 800; font-size: 1.05rem;
+      padding: 0.95rem 2.5rem; border-radius: 8px;
+      text-decoration: none; transition: background 0.2s, transform 0.15s;
+    }
+    .btn-gold:hover { background: #d97706; transform: translateY(-1px); }
+    .guarantee { font-size: 0.8rem; color: var(--muted); margin-top: 1rem; }
+
+    /* ── HOW IT WORKS ── */
+    .steps { counter-reset: step; display: flex; flex-direction: column; gap: 1.5rem; max-width: 600px; }
+    .step { display: flex; gap: 1.25rem; align-items: flex-start; }
+    .step-num {
+      flex-shrink: 0; width: 2rem; height: 2rem; border-radius: 50%;
+      background: var(--accent); display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.85rem; margin-top: 0.15rem;
+    }
+    .step-body h4 { font-weight: 700; margin-bottom: 0.25rem; }
+    .step-body p { font-size: 0.875rem; color: var(--muted); }
+
+    /* ── PLATFORMS ── */
+    .platforms { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+    .platform {
+      flex: 1; min-width: 160px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.25rem; text-align: center;
+    }
+    .platform-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .platform h4 { font-size: 0.9rem; font-weight: 700; }
+    .platform p { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* ── ABOUT ── */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+    @media (max-width: 640px) { .about-grid { grid-template-columns: 1fr; } }
+    .about-text p { color: var(--muted); margin-bottom: 1rem; }
+    .about-contact { margin-top: 1.5rem; }
+    .about-contact a { color: var(--accent2); text-decoration: none; }
+    .about-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 2rem; text-align: center;
+    }
+    .about-avatar { font-size: 3.5rem; margin-bottom: 0.75rem; }
+    .about-card h3 { font-weight: 800; font-size: 1.2rem; }
+    .about-card p { color: var(--muted); font-size: 0.875rem; margin-top: 0.4rem; }
+    .about-handle { color: var(--accent); font-weight: 700; font-size: 0.875rem; margin-top: 0.5rem; }
+
+    /* ── DATA / PRIVACY SUMMARY ── */
+    .privacy-summary { background: rgba(124,58,237,0.06); border: 1px solid rgba(124,58,237,0.2); border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; }
+    .privacy-summary h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .privacy-summary ul { padding-left: 1.25rem; color: var(--muted); font-size: 0.875rem; }
+    .privacy-summary li { margin-bottom: 0.4rem; }
+    .privacy-link { color: var(--accent2); text-decoration: none; font-weight: 600; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center; padding: 2.5rem 1.5rem;
+      color: var(--muted); font-size: 0.8rem;
+    }
+    footer a { color: var(--muted); text-decoration: none; margin: 0 0.75rem; }
+    footer a:hover { color: var(--text); }
+    .footer-logo { font-size: 1rem; font-weight: 900; margin-bottom: 1rem; }
+    .footer-logo span { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ───────────────────────────────────────────────── -->
+<nav>
+  <div class="logo">Clip<span>Farmer</span></div>
+  <div>
+    <a href="#how-it-works">How it works</a>
+    <a href="#about">About</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="https://abdiassassin.gumroad.com/l/kkwmea" class="nav-cta" target="_blank" rel="noopener">Get the Vault →</a>
+  </div>
+</nav>
+
+<!-- ── HERO ──────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="badge">Automated Content Pipeline</div>
+  <h1>Post Every Day.<br><span class="grad">Without Lifting a Finger.</span></h1>
+  <p class="hero-sub">ClipFarmer is an automated short-form video pipeline that scrapes audio, renders vertical clips, and posts to TikTok, YouTube Shorts, and Instagram Reels — on a schedule.</p>
+  <div class="hero-btns">
+    <a href="https://abdiassassin.gumroad.com/l/kkwmea" class="btn-primary" target="_blank" rel="noopener">Get the Blueprint — $24</a>
+    <a href="#how-it-works" class="btn-ghost">See how it works</a>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n">3</div><div class="stat-l">Platforms</div></div>
+  <div class="stat"><div class="stat-n">29+</div><div class="stat-l">Clips Ready</div></div>
+  <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Automated</div></div>
+  <div class="stat"><div class="stat-n">0</div><div class="stat-l">Manual Posts</div></div>
+</div>
+
+<!-- ── FEATURES ───────────────────────────────────────────── -->
+<div class="section">
+  <p class="section-label">What it does</p>
+  <h2>One pipeline.<br>Every platform.</h2>
+  <p class="section-sub">ClipFarmer handles the entire content cycle from raw audio to published clip — automatically.</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-icon">🎵</div>
+      <h3>Asset Scraping</h3>
+      <p>Downloads trending audio and background footage automatically using yt-dlp.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎬</div>
+      <h3>Clip Rendering</h3>
+      <p>Renders 9:16 vertical clips with title overlays, hook text, and Gumroad CTA via ffmpeg.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⏱️</div>
+      <h3>Peak-Time Scheduler</h3>
+      <p>Queues posts for 7am, 12pm, and 7pm — the highest-engagement windows.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📊</div>
+      <h3>Analytics Engine</h3>
+      <p>Pulls view, like, and retention data from TikTok and YouTube to rank hooks by performance.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔁</div>
+      <h3>Hook A/B Engine</h3>
+      <p>Weighted random hook selection — high-retention hooks get promoted automatically.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🛡️</div>
+      <h3>Rate Limiting</h3>
+      <p>Built-in dual-layer rate limiter ensures TikTok API limits are never exceeded.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── DONE-FOR-YOU SERVICES ─────────────────────────────── -->
+<div class="section" id="services" style="border-top:1px solid var(--border)">
+  <p class="section-label">Done-For-You</p>
+  <h2 class="section-title">We Run Your Content.<br>You Grow Your Channel.</h2>
+  <p style="text-align:center;color:var(--muted);max-width:520px;margin:0 auto 3rem">
+    We use our automated ClipFarmer pipeline to produce and post short-form content
+    directly to your YouTube channel — every single day, hands-off.
+  </p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;max-width:900px;margin:0 auto">
+
+    <!-- Starter -->
+    <div class="card" style="text-align:center">
+      <div style="font-size:1.75rem;margin-bottom:.5rem">🚀</div>
+      <div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem">Starter</div>
+      <div style="font-size:2.4rem;font-weight:900;color:var(--text)">£99<span style="font-size:1rem;font-weight:400;color:var(--muted)">/mo</span></div>
+      <div style="color:var(--accent2);font-weight:600;margin:.5rem 0 1.25rem">30 Shorts · 1 per day</div>
+      <ul style="list-style:none;text-align:left;color:var(--muted);font-size:.9rem;line-height:2;margin-bottom:1.5rem">
+        <li>✓ AI-generated scripts (your niche)</li>
+        <li>✓ ElevenLabs AI voiceover</li>
+        <li>✓ Auto-posted to your YouTube</li>
+        <li>✓ Varied backgrounds every clip</li>
+        <li>✓ Hashtags + SEO titles included</li>
+      </ul>
+      <a href="mailto:abdiasis33@icloud.com?subject=ClipFarmer Starter Plan&body=Hi, I'm interested in the Starter plan (30 Shorts/month). My YouTube channel is:" class="btn-primary" style="display:block;text-align:center">Get Started →</a>
+    </div>
+
+    <!-- Growth -->
+    <div class="card" style="text-align:center;border-color:var(--accent);position:relative">
+      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:.7rem;font-weight:800;padding:.25rem .9rem;border-radius:999px;letter-spacing:.05em">MOST POPULAR</div>
+      <div style="font-size:1.75rem;margin-bottom:.5rem">⚡</div>
+      <div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem">Growth</div>
+      <div style="font-size:2.4rem;font-weight:900;color:var(--text)">£179<span style="font-size:1rem;font-weight:400;color:var(--muted)">/mo</span></div>
+      <div style="color:var(--accent2);font-weight:600;margin:.5rem 0 1.25rem">60 Shorts · 2 per day</div>
+      <ul style="list-style:none;text-align:left;color:var(--muted);font-size:.9rem;line-height:2;margin-bottom:1.5rem">
+        <li>✓ Everything in Starter</li>
+        <li>✓ 2 clips posted per day</li>
+        <li>✓ Custom niche & tone tuning</li>
+        <li>✓ Weekly content report</li>
+        <li>✓ Priority support</li>
+      </ul>
+      <a href="mailto:abdiasis33@icloud.com?subject=ClipFarmer Growth Plan&body=Hi, I'm interested in the Growth plan (60 Shorts/month). My YouTube channel is:" class="btn-gold" style="display:block;text-align:center">Get Started →</a>
+    </div>
+
+    <!-- Scale -->
+    <div class="card" style="text-align:center">
+      <div style="font-size:1.75rem;margin-bottom:.5rem">🔥</div>
+      <div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem">Scale</div>
+      <div style="font-size:2.4rem;font-weight:900;color:var(--text)">£299<span style="font-size:1rem;font-weight:400;color:var(--muted)">/mo</span></div>
+      <div style="color:var(--accent2);font-weight:600;margin:.5rem 0 1.25rem">120 Shorts · 4 per day</div>
+      <ul style="list-style:none;text-align:left;color:var(--muted);font-size:.9rem;line-height:2;margin-bottom:1.5rem">
+        <li>✓ Everything in Growth</li>
+        <li>✓ 4 clips posted per day</li>
+        <li>✓ Multiple niches supported</li>
+        <li>✓ TikTok included (if available)</li>
+        <li>✓ Dedicated account manager</li>
+      </ul>
+      <a href="mailto:abdiasis33@icloud.com?subject=ClipFarmer Scale Plan&body=Hi, I'm interested in the Scale plan (120 Shorts/month). My YouTube channel is:" class="btn-primary" style="display:block;text-align:center">Get Started →</a>
+    </div>
+
+  </div>
+
+  <p style="text-align:center;color:var(--muted);font-size:.85rem;margin-top:2rem">
+    No setup fees · Cancel anytime · First 5 clips free as proof of concept
+  </p>
+</div>
+
+<!-- ── PRODUCT CTA ────────────────────────────────────────── -->
+<div class="product-section">
+  <div class="product-inner">
+    <div class="price-badge">🔥 SAVE 30% — LIMITED TIME</div>
+    <h2 class="product-title">The Ultimate AI Prompt Vault:<br>Creator + Entrepreneur Mega Pack</h2>
+    <p class="product-sub">The exact toolkit used to build and run ClipFarmer — now bundled with 100 battle-tested AI prompts for creators and entrepreneurs.</p>
+    <ul class="includes">
+      <li>50 ChatGPT Prompts for Entrepreneurs ($12 value)</li>
+      <li>50 ChatGPT Prompts for Content Creators ($9 value)</li>
+      <li>The ClipFarmer Blueprint — exclusive ($15 value)</li>
+    </ul>
+    <div class="price-row">
+      <span class="price-now">$24</span>
+      <span class="price-was">$36</span>
+    </div>
+    <a href="https://abdiassassin.gumroad.com/l/kkwmea" class="btn-gold" target="_blank" rel="noopener">I want this →</a>
+    <p class="guarantee">Instant download · Gumroad secure checkout · 30-day refund</p>
+  </div>
+</div>
+
+<!-- ── HOW IT WORKS ───────────────────────────────────────── -->
+<div class="section" id="how-it-works">
+  <p class="section-label">The pipeline</p>
+  <h2>How ClipFarmer works</h2>
+  <p class="section-sub">Five automated stages, zero manual steps.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h4>Scrape audio + background</h4>
+        <p>asset_scraper.py downloads trending phonk / motivational audio and cinematic background footage.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h4>Render 9:16 vertical clip</h4>
+        <p>clip_renderer.py combines audio + background, burns title text, hook overlay, and Gumroad CTA via ffmpeg.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h4>Approve or auto-post</h4>
+        <p>Discord bot sends a preview card with Approve / Reject buttons — or auto_post=True skips review entirely.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h4>Schedule at peak times</h4>
+        <p>scheduler.py queues posts at 7am, 12pm, and 7pm using multi_publisher.py to hit TikTok, YouTube, and Instagram simultaneously.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h4>Analyse and optimise</h4>
+        <p>analytics_engine.py pulls view and retention stats and automatically weights better-performing hooks for future clips.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 3.5rem;">
+    <p class="section-label">Platforms</p>
+    <h2 style="margin-bottom: 1.5rem;">Posts everywhere</h2>
+    <div class="platforms">
+      <div class="platform">
+        <div class="platform-icon">🎵</div>
+        <h4>TikTok</h4>
+        <p>Content Posting API v2 · direct file upload</p>
+      </div>
+      <div class="platform">
+        <div class="platform-icon">📺</div>
+        <h4>YouTube Shorts</h4>
+        <p>Data API v3 · OAuth 2.0 · resumable upload</p>
+      </div>
+      <div class="platform">
+        <div class="platform-icon">📸</div>
+        <h4>Instagram Reels</h4>
+        <p>Meta Graph API · pending app approval</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ABOUT ──────────────────────────────────────────────── -->
+<div class="section" id="about" style="border-top: 1px solid var(--border);">
+  <div class="about-grid">
+    <div class="about-text">
+      <p class="section-label">About</p>
+      <h2>Built by a creator,<br>for creators.</h2>
+      <p>ClipFarmer is a personal automated content pipeline built and operated by Abdiasis Yassin Said. It uses the TikTok Content Posting API to publish short-form video content automatically on behalf of a single creator account.</p>
+      <p>This application is not a multi-tenant SaaS. It is a single-user automation tool. No third-party user data is collected or processed.</p>
+      <div class="about-contact">
+        <strong>Contact & support:</strong><br>
+        <a href="mailto:abdiasis33@icloud.com">abdiasis33@icloud.com</a>
+      </div>
+    </div>
+    <div class="about-card">
+      <div class="about-avatar">👨‍💻</div>
+      <h3>Abdiasis Yassin Said</h3>
+      <p>Developer & Content Creator</p>
+      <div class="about-handle">@kenisterjz</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DATA / PRIVACY OVERVIEW ────────────────────────────── -->
+<div class="section" style="border-top: 1px solid var(--border);">
+  <p class="section-label">Transparency</p>
+  <h2>Data & Privacy</h2>
+  <p class="section-sub">ClipFarmer is designed with minimal data usage in mind.</p>
+  <div class="privacy-summary">
+    <h3>What data ClipFarmer accesses via TikTok API</h3>
+    <ul>
+      <li>Creator profile info (username, display name) — to confirm the correct account is authorised</li>
+      <li>Video publish permission — to upload and post clips on behalf of the creator</li>
+      <li>Post status — to confirm successful publication</li>
+    </ul>
+  </div>
+  <div class="privacy-summary">
+    <h3>What ClipFarmer does NOT do</h3>
+    <ul>
+      <li>Does not collect, store, or process any third-party user data</li>
+      <li>Does not read follower data, DMs, or comments</li>
+      <li>Does not sell or share any data with third parties</li>
+      <li>Does not serve ads or operate as a multi-user platform</li>
+    </ul>
+  </div>
+  <p style="color: var(--muted); font-size: 0.875rem; margin-top: 1rem;">
+    Read the full policy: <a href="privacy.html" class="privacy-link">Privacy Policy</a> &nbsp;|&nbsp;
+    To request data deletion: <a href="mailto:abdiasis33@icloud.com" class="privacy-link">abdiasis33@icloud.com</a>
+  </p>
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-logo">Clip<span>Farmer</span></div>
+  <div style="margin-bottom: 1rem;">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="mailto:abdiasis33@icloud.com">Contact</a>
+    <a href="https://abdiassassin.gumroad.com/l/kkwmea" target="_blank" rel="noopener">Gumroad</a>
+  </div>
+  <p>© 2026 Abdiasis Yassin Said. All rights reserved.</p>
+  <p style="margin-top: 0.4rem;">ClipFarmer uses the TikTok Content Posting API under TikTok's Terms of Service.</p>
+</footer>
+
+</body>
+</html>
